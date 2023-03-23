@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script>
+    // 一个同步的http请求
+    function httpRequest(address, reqType, asyncProc) {
+        let req = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+        if (asyncProc) {
+            req.onreadystatechange = function () {
+                if (this.readyState === 4) {
+                    asyncProc(this);
+                }
+            };
+        }
+
+        req.open(reqType, address, !(!asyncProc));
+        req.send();
+        return req;
+    }
+
+    // 获取 code 参数 Location:http://localhost:9000/code-to-user-info.html?code=NZU5MDU3YMETMDYWNS0ZZGNKLWI0MZKTNDRKMTY0YZQ0ZMY4
+    let query = decodeURI(window.location.search.substring(1));
+    let params = query.split("&");
+    let code = ''
+    for (let i = 0; i < params.length; i++) {
+        let pair = params[i].split("=");
+        if (pair[0] === "code") {
+            console.log("code = ", pair[1])
+            code = pair[1]
+            break
+        }
+    }
+
+    // code 换取 accessToken
+    let access_token
+    let token_url = 'http://localhost:9000/oauth2/token?code={Code}&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A9000%2Fcode-to-user-info.html&client_id=youWebApp'
+    token_url = token_url.replace('{Code}', code)
+    console.log("token_url = ", token_url)
+    let req1 = httpRequest(token_url, "Get", false)
+    if (req1.status === 200) {
+        console.log(req1.response)
+    }
+    let token_data = JSON.parse(req1.response)
+    access_token = token_data["access_token"]
+    if (access_token === undefined) {
+        window.location.replace("http://localhost:9000/login.html")
+    }
+
+    // access_token 换取用户信息
+    let user_info_url = 'http://localhost:9000/oauth2/getuserinfo?access_token={AccessToken}';
+    user_info_url = user_info_url.replace('{AccessToken}', access_token)
+    console.log("user_info_url = ", user_info_url)
+
+    let req2 = httpRequest(user_info_url, "Get", false)
+    if (req2.status === 200) {
+        console.log("user info = ", req2.response)
+    }
+
+    alert(req2.response)
+</script>
+</body>
+</html>
