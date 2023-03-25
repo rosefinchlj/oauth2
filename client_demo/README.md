@@ -29,6 +29,7 @@
 
 访问这个[网址](https://github.com/settings/applications/new)，填写登记表。
 
+![register.jpg](https://github.com/rosefinchlj/oauth2/blob/main/pic/register.jpg?raw=true)
 
 
 用的名称随便填，主页 URL 填写`http://localhost:8080`，跳转网址填写`http://localhost:8080/oauth/redirect`。
@@ -44,14 +45,14 @@ golang实现
 
 ## 四、浏览器跳转 GitHub
 
-
+![login.png](https://github.com/rosefinchlj/oauth2/blob/main/pic/login.png?raw=true)
 
 示例的首页很简单，就是一个链接，让用户跳转到 GitHub
 
 
 跳转的 URL 如下：
 
-```
+```shell
 https://github.com/login/oauth/authorize?
   client_id=7e015d8ce32370079895&
   redirect_uri=http://localhost:8080/oauth/redirect
@@ -67,11 +68,11 @@ https://github.com/login/oauth/authorize?
 
 登录后，GitHub 询问用户，该应用正在请求数据，你是否同意授权。
 
-
+![auth.png](https://github.com/rosefinchlj/oauth2/blob/main/pic/auth.png?raw=true)
 
 用户同意授权， GitHub 就会跳转到`redirect_uri`指定的跳转网址，并且带上授权码，跳转回来的 URL 就是下面的样子。
 
-```
+```shell
 http://localhost:8080/oauth/redirect?
   code=859310e7cecc9196f4af
 ```
@@ -113,14 +114,13 @@ POST https://github.com/login/oauth/access_token
 
 默认情况下，响应采用以下形式：
 
-```
+```shell
 access_token=gho_16C7e42F292c6912E7710c838347Ae178B4a&scope=repo%2Cgist&token_type=bearer
 ```
 
 如果在 `Accept` 标头中提供格式，则还可以接收不同格式的响应。 例如 `Accept: application/json` 或 `Accept: application/xml`：
 
 ```json
-Accept: application/json
 {
   "access_token":"gho_16C7e42F292c6912E7710c838347Ae178B4a",
   "scope":"repo,gist",
@@ -129,7 +129,6 @@ Accept: application/json
 ```
 
 ``` xml
-Accept: application/xml
 <OAuth>
   <token_type>bearer</token_type>
   <scope>repo,gist</scope>
@@ -143,7 +142,7 @@ Accept: application/xml
 
 访问令牌可用于代表用户向 API 提出请求。
 
-```
+```http
 Authorization: Bearer OAUTH-TOKEN
 GET https://api.github.com/user
 ```
@@ -160,7 +159,11 @@ curl -H "Authorization: Bearer OAUTH-TOKEN" https://api.github.com/user
 
 首先：
 
-验证码是怎么来的呢，https://github.com/login/oauth/authorize?client_id=[client_id]&redirect_uri=[redirect_uri]这个链接发起的请求来的，client_id相当于是暴露在前端，通过浏览器的开发者工具就可以看到的，所以[任何人]都可以拿着这个client_id去向github发起请求，
+验证码是怎么来的呢，https://github.com/login/oauth/authorize?client_id=[client_id]&redirect_uri=[redirect_uri]
+
+这个链接发起的请求来的，client_id相当于是暴露在前端，通过浏览器的开发者工具就可以看到的，所以[任何人]都可以拿着这个client_id去向github发起请求，
+
+
 
 然后：
 
